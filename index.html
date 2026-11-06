@@ -1,0 +1,902 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hollywood Stars Quiz</title>
+
+<meta name="description" content="Name the Hollywood star from the photo, from the 1940s to today. Every game is different.">
+<meta name="theme-color" content="#7A1F2B">
+
+<!-- Link previews (WhatsApp, iMessage, Facebook, Slack, X…)
+     Set for https://btennett.github.io/actors_quiz/  — change og:url and the image addresses
+     if you host this at a different address.
+     og:image MUST be a full https:// address or WhatsApp won't show it.
+     Upload preview.png (1200×630), icon-512.png, apple-touch-icon.png and favicon-32.png alongside this file. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Hollywood Stars Quiz">
+<meta property="og:title" content="Hollywood Stars Quiz">
+<meta property="og:description" content="Name the Hollywood star from the photo, from the 1940s to today. Every game is different.">
+<meta property="og:url" content="https://btennett.github.io/actors_quiz/">
+<meta property="og:image" content="https://btennett.github.io/actors_quiz/preview.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Hollywood Stars Quiz: five names, the correct one ticked.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Hollywood Stars Quiz">
+<meta name="twitter:description" content="Name the Hollywood star from the photo, from the 1940s to today. Every game is different.">
+<meta name="twitter:image" content="https://btennett.github.io/actors_quiz/preview.png">
+
+<!-- Browser tab and home-screen icons -->
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<!-- Photos are loaded from Wikimedia Commons -->
+<link rel="preconnect" href="https://commons.wikimedia.org">
+<link rel="preconnect" href="https://upload.wikimedia.org">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+body{margin:0;font:14px/1.4 system-ui,-apple-system,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+:root{
+  --bg:#F1EDE6; --surface:#FFFFFF; --ink:#1E1A17; --muted:#6A625A; --line:#DCD4C9;
+  --accent:#7A1F2B; --gold:#A87A1E; --good:#1D7448; --bad:#B0281F; --good-soft:#E2F1E8; --bad-soft:#FAE6E3;
+  --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --f-head:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#151210; --surface:#201B18; --ink:#EEE7DF; --muted:#A59B90; --line:#3A322C;
+  --accent:#E38A93; --gold:#D9B05C; --good:#4CC48A; --bad:#F27C70; --good-soft:#163024; --bad-soft:#3A1E1C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#151210; --surface:#201B18; --ink:#EEE7DF; --muted:#A59B90; --line:#3A322C;
+  --accent:#E38A93; --gold:#D9B05C; --good:#4CC48A; --bad:#F27C70; --good-soft:#163024; --bad-soft:#3A1E1C; color-scheme:dark}
+
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-display);-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit}
+.app{height:100%;height:100dvh;max-width:560px;margin:0 auto;display:grid;grid-template-rows:auto 1fr auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+.top{padding-top:max(12px,env(safe-area-inset-top,0px));padding-bottom:8px;display:flex;flex-direction:column;gap:9px}
+.top-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.brand{font-weight:800;font-size:1.15rem;letter-spacing:-.01em;margin:0}
+.brand em{font-style:normal;color:var(--accent)}
+.score{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.score b{color:var(--ink);font-size:1rem}
+.dots{display:grid;gap:5px;list-style:none;margin:0;padding:0}
+.dots li{height:6px;border-radius:3px;background:var(--line)}
+.dots li.now{background:var(--accent)} .dots li.ok{background:var(--good)} .dots li.no{background:var(--bad)}
+
+.stage{overflow-y:auto;min-height:0;padding-block:4px 10px;overscroll-behavior:contain}
+.card{display:flex;flex-direction:column;gap:9px}
+.meta{font-family:var(--f-mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.question{font-family:var(--f-head);font-weight:600;font-size:clamp(1.15rem,4.8vw,1.45rem);line-height:1.3;margin:0;text-wrap:balance}
+
+.setup{display:flex;flex-direction:column;gap:14px}
+.notice{background:var(--surface);border:1px dashed var(--gold);border-radius:12px;padding:14px 16px;font-size:.92rem;line-height:1.5}
+.notice p{margin:0 0 6px} .notice p:last-child{margin:0}
+.notice code{font-family:var(--f-mono);font-size:.82rem}
+.notice a{color:var(--accent)}
+
+.photo-box{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:5px}
+.photo{display:block;width:100%;height:clamp(140px,calc(100vh - 470px),340px);height:clamp(140px,calc(100svh - 470px),340px);object-fit:contain;border-radius:9px;background:var(--surface)}
+.photo-msg{position:absolute;inset:0;display:grid;place-items:center;padding:16px;text-align:center;font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
+.review .thumb{width:44px;height:52px;object-fit:cover;border-radius:6px;background:var(--bg);vertical-align:middle}
+.options{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.opt{width:100%;min-height:44px;display:grid;grid-template-columns:32px 1fr auto;align-items:center;gap:12px;
+  text-align:left;padding:5px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);
+  font-size:1rem;font-weight:500;cursor:pointer;transition:border-color .15s,background .15s,transform .08s}
+.opt:active{transform:scale(.985)}
+.opt:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (hover:hover){.opt:not([disabled]):hover{border-color:var(--accent)}}
+.opt .key{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-family:var(--f-mono);font-size:.85rem;
+  background:var(--bg);color:var(--muted)}
+.opt .txt{min-width:0;line-height:1.3}
+.opt .res{font-weight:800;font-size:1.05rem}
+.opt[disabled]{cursor:default}
+.opt.correct{border-color:var(--good);background:var(--good-soft)}
+.opt.correct .key{background:var(--good);color:var(--surface)}
+.opt.correct .res{color:var(--good)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.wrong .key{background:var(--bad);color:var(--surface)}
+.opt.wrong .res{color:var(--bad)}
+.opt.faded{opacity:.5}
+
+.fact{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.fact .verdict{font-weight:800;font-size:1.05rem;margin:0}
+.fact .verdict.ok{color:var(--good)} .fact .verdict.no{color:var(--bad)}
+.fact p{margin:0;font-family:var(--f-head);font-size:1rem;line-height:1.55}
+.fact .credit{font-family:var(--f-mono);font-size:.7rem;color:var(--muted)}
+.fact .credit a{color:inherit}
+
+.over{display:flex;flex-direction:column;gap:16px}
+.final{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px 18px;text-align:center;display:flex;flex-direction:column;gap:6px}
+.final .big{font-weight:800;font-size:3.2rem;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin:0}
+.final p{margin:0}
+.final .best{font-family:var(--f-mono);font-size:.78rem;color:var(--muted)}
+.row{display:flex;gap:8px}
+.ghost{flex:1;min-height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);font-weight:700;cursor:pointer}
+.ghost:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (hover:hover){.ghost:hover{border-color:var(--accent)}}
+.review-title{font-size:.8rem;font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:6px 0 0;font-weight:500}
+.review{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.review li{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;display:grid;grid-template-columns:auto 44px 1fr;align-items:center;gap:12px}
+.review .mark{font-weight:800;font-size:1.05rem;line-height:1.3}
+.review .mark.ok{color:var(--good)} .review .mark.no{color:var(--bad)}
+.review .ans{font-size:.9rem;color:var(--muted)}
+.review .ans b{color:var(--ink);font-weight:600}
+
+.actions{padding-top:8px;padding-bottom:max(6px,env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--bg)}
+.btn{width:100%;border:none;border-radius:12px;min-height:50px;font-weight:700;font-size:1.1rem;cursor:pointer;
+  background:var(--accent);color:var(--surface);transition:transform .08s,opacity .15s}
+.btn:active{transform:scale(.98)}
+.btn:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.btn[disabled]{background:var(--line);color:var(--muted);cursor:default;transform:none}
+.foot{font-family:var(--f-mono);font-size:.62rem;color:var(--muted);text-align:center;margin:5px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.foot a{color:inherit}
+.error{background:var(--bad-soft);border:1px solid var(--bad);border-radius:12px;padding:14px 16px;font-size:.92rem}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:no-preference){.fact{animation:rise .25s ease-out}@keyframes rise{from{transform:translateY(6px);opacity:.4}to{transform:none;opacity:1}}}
+</style>
+</head>
+<body>
+<!--
+================================================================
+  QUIZ CONTENT — edit only this block.
+  ----------------------------------------------------------------
+  settings.questionsPerGame   : how many questions each game draws
+  settings.optionsPerQuestion : names shown per question (3 to 6; 5 fits best on a phone)
+  eras[]  : the eras actors are grouped into (shown above the photo;
+            wrong answers come from the same era first)
+  actors[] : one object per actor
+    name   : shown as an answer choice
+    era    : must match one of the eras above
+    gender : "m" or "f". Wrong answers come from the same gender, and the
+             same era first, so the choices are plausible.
+    photo  : THE PHOTO'S FILE NAME ON WIKIMEDIA COMMONS, without "File:"
+             (https://commons.wikimedia.org/wiki/File:<name>).
+             Left empty ("") = this actor is not asked about yet, but can
+             still appear as a wrong answer. Fill these in yourself.
+             Portrait or square headshots work best.
+    fact   : one or two sentences shown after answering
+  Facts were checked against Wikipedia's Academy Award winner and nominee
+  tables (Best Actor, Actress, Supporting Actor, Supporting Actress) and
+  each actor's Wikipedia article, November 2026. Award years are the
+  film's release year, as Wikipedia lists them.
+  Try it before adding photos: open the page with ?preview on the end of
+  the address (e.g. index.html?preview). Photos show as placeholders.
+================================================================
+-->
+<script type="application/json" id="quiz-data">
+{
+  "title": "Hollywood Stars Quiz",
+  "version": "1.0 · November 2026",
+  "settings": {
+    "questionsPerGame": 12,
+    "optionsPerQuestion": 5
+  },
+  "eras": [
+    "1940s–50s",
+    "1960s–70s",
+    "1980s–90s",
+    "2000s–today"
+  ],
+  "actors": [
+    {
+      "name": "Humphrey Bogart",
+      "era": "1940s–50s",
+      "gender": "m",
+      "photo": "Humphrey Bogart by Elmer Fryer (cropped).jpg",
+      "fact": "Played Rick Blaine in Casablanca (1942) and won his only Oscar, Best Actor, for The African Queen (1951)."
+    },
+    {
+      "name": "James Stewart",
+      "era": "1940s–50s",
+      "gender": "m",
+      "photo": "Annex_-_Stewart,_James_(Call_Northside_777)_01.jpg",
+      "fact": "Won Best Actor for The Philadelphia Story (1940) and was nominated again as George Bailey in It's a Wonderful Life (1946)."
+    },
+    {
+      "name": "Cary Grant",
+      "era": "1940s–50s",
+      "gender": "m",
+      "photo": "Grant,_Cary_(Suspicion)_01_Crisco_edit.jpg",
+      "fact": "Nominated for Best Actor for Penny Serenade (1941) and None but the Lonely Heart (1944), but never won a competitive Oscar."
+    },
+    {
+      "name": "Gregory Peck",
+      "era": "1940s–50s",
+      "gender": "m",
+      "photo": "Gregory_Peck_1948.jpg",
+      "fact": "Won Best Actor for playing Atticus Finch in To Kill a Mockingbird (1962)."
+    },
+    {
+      "name": "Marlon Brando",
+      "era": "1940s–50s",
+      "gender": "m",
+      "photo": "Marlon Brando by Edward Cronenweth, 1955.jpg",
+      "fact": "Won Best Actor for On the Waterfront (1954) and The Godfather (1972), and refused the second award."
+    },
+    {
+      "name": "James Dean",
+      "era": "1940s–50s",
+      "gender": "m",
+      "photo": "James Dean in Rebel Without a Cause (HQ).jpg",
+      "fact": "Made only three major films before dying in a car crash in 1955, aged 24. He was nominated for Best Actor twice after his death, for East of Eden and Giant."
+    },
+    {
+      "name": "Gene Kelly",
+      "era": "1940s–50s",
+      "gender": "m",
+      "photo": "Gene Kelly Allan Warren.jpg",
+      "fact": "Nominated for Best Actor for the musical Anchors Aweigh (1945)."
+    },
+    {
+      "name": "Kirk Douglas",
+      "era": "1940s–50s",
+      "gender": "m",
+      "photo": "Studio_publicity_Kirk_Douglas.jpg",
+      "fact": "Nominated for Best Actor three times, including for playing Vincent van Gogh in Lust for Life (1956)."
+    },
+    {
+      "name": "Bette Davis",
+      "era": "1940s–50s",
+      "gender": "f",
+      "photo": "Bette Davis - portrait.jpg",
+      "fact": "Won Best Actress for Dangerous (1935) and Jezebel (1938), and was nominated in that category 11 times."
+    },
+    {
+      "name": "Katharine Hepburn",
+      "era": "1940s–50s",
+      "gender": "f",
+      "photo": "Katharine Hepburn publicity photograph.jpg",
+      "fact": "Holds the record for Best Actress wins, with four, from 12 nominations."
+    },
+    {
+      "name": "Ingrid Bergman",
+      "era": "1940s–50s",
+      "gender": "f",
+      "photo": "Ingrid Bergman studio portrait photo.jpg",
+      "fact": "Won three Oscars: Best Actress for Gaslight (1944) and Anastasia (1956), and Best Supporting Actress for Murder on the Orient Express (1974)."
+    },
+    {
+      "name": "Audrey Hepburn",
+      "era": "1940s–50s",
+      "gender": "f",
+      "photo": "Audrey Hepburn 1954.jpg",
+      "fact": "Won Best Actress for Roman Holiday (1953), and is one of the few people to have won an Emmy, Grammy, Oscar and Tony (an 'EGOT')."
+    },
+    {
+      "name": "Marilyn Monroe",
+      "era": "1940s–50s",
+      "gender": "f",
+      "photo": "Marilyn Monroe Seven Year Itch.jpg",
+      "fact": "Born Norma Jeane Mortenson. She won a Golden Globe for Some Like It Hot (1959)."
+    },
+    {
+      "name": "Grace Kelly",
+      "era": "1940s–50s",
+      "gender": "f",
+      "photo": "Grace Kelly 1954.jpg",
+      "fact": "Won Best Actress for The Country Girl (1954), then retired from acting at 26 to marry Prince Rainier III of Monaco."
+    },
+    {
+      "name": "Elizabeth Taylor",
+      "era": "1940s–50s",
+      "gender": "f",
+      "photo": "Elizabeth Taylor - 1952 portrait.jpg",
+      "fact": "Won Best Actress twice, for BUtterfield 8 (1960) and Who's Afraid of Virginia Woolf? (1966)."
+    },
+    {
+      "name": "Lauren Bacall",
+      "era": "1940s–50s",
+      "gender": "f",
+      "photo": "Lauren Bacall08.JPG",
+      "fact": "Made her film debut at 19 opposite Humphrey Bogart in To Have and Have Not (1944). They married the following year."
+    },
+    {
+      "name": "Paul Newman",
+      "era": "1960s–70s",
+      "gender": "m",
+      "photo": "Paul Newman 1954.JPG",
+      "fact": "Won Best Actor for The Color of Money (1986) as 'Fast' Eddie Felson, the same character he had played 25 years earlier in The Hustler."
+    },
+    {
+      "name": "Sean Connery",
+      "era": "1960s–70s",
+      "gender": "m",
+      "photo": "Sean Connery as James Bond (1971).jpg",
+      "fact": "The first actor to play James Bond on film, in Dr. No (1962). He won Best Supporting Actor for The Untouchables (1987)."
+    },
+    {
+      "name": "Steve McQueen",
+      "era": "1960s–70s",
+      "gender": "m",
+      "photo": "Steve_McQueen_1959.jpg",
+      "fact": "His only Oscar nomination was for Best Actor in The Sand Pebbles (1966)."
+    },
+    {
+      "name": "Clint Eastwood",
+      "era": "1960s–70s",
+      "gender": "m",
+      "photo": "Clint Eastwood - 1960s.JPG",
+      "fact": "Nominated for Best Actor for Unforgiven (1992) and Million Dollar Baby (2004)."
+    },
+    {
+      "name": "Robert Redford",
+      "era": "1960s–70s",
+      "gender": "m",
+      "photo": "Robert Redford 1973-2.jpg",
+      "fact": "His only acting nomination was for Best Actor in The Sting (1973)."
+    },
+    {
+      "name": "Jack Nicholson",
+      "era": "1960s–70s",
+      "gender": "m",
+      "photo": "Jack_Nicholson_2001_(cropped).jpg",
+      "fact": "Won three Oscars from 12 acting nominations, including Best Actor for One Flew Over the Cuckoo's Nest (1975) and As Good as It Gets (1997)."
+    },
+    {
+      "name": "Dustin Hoffman",
+      "era": "1960s–70s",
+      "gender": "m",
+      "photo": "Dustin Hoffman on the set of \"Midnight Cowboy\".jpg",
+      "fact": "Won Best Actor for Kramer vs. Kramer (1979) and Rain Man (1988)."
+    },
+    {
+      "name": "Al Pacino",
+      "era": "1960s–70s",
+      "gender": "m",
+      "photo": "Al_Pacino.jpg",
+      "fact": "Played Michael Corleone in The Godfather films. For 1992 he was nominated for both Glengarry Glen Ross and Scent of a Woman, and won Best Actor for Scent of a Woman."
+    },
+    {
+      "name": "Robert De Niro",
+      "era": "1960s–70s",
+      "gender": "m",
+      "photo": "Robert de Niro Cannes Film Festival (3x4 cropped).jpg",
+      "fact": "Won Best Supporting Actor as Vito Corleone in The Godfather Part II (1974), the role that won Marlon Brando an Oscar in The Godfather. He later won Best Actor for Raging Bull (1980)."
+    },
+    {
+      "name": "Julie Andrews",
+      "era": "1960s–70s",
+      "gender": "f",
+      "photo": "Julie_Andrews_2001.jpg",
+      "fact": "Won Best Actress for Mary Poppins (1964) and was nominated again the next year as Maria von Trapp in The Sound of Music."
+    },
+    {
+      "name": "Jane Fonda",
+      "era": "1960s–70s",
+      "gender": "f",
+      "photo": "Jane Fonda 1975d.jpg",
+      "fact": "Won Best Actress for Klute (1971) and Coming Home (1978)."
+    },
+    {
+      "name": "Faye Dunaway",
+      "era": "1960s–70s",
+      "gender": "f",
+      "photo": "Faye_Dunaway_Cannes_2016.jpg",
+      "fact": "Won Best Actress for Network (1976), after nominations for Bonnie and Clyde (1967) and Chinatown (1974)."
+    },
+    {
+      "name": "Barbra Streisand",
+      "era": "1960s–70s",
+      "gender": "f",
+      "photo": "Barbra Streisand Allan Warren.jpg",
+      "fact": "Won Best Actress for Funny Girl (1968) in an exact tie with Katharine Hepburn, the only tie in that category's history."
+    },
+    {
+      "name": "Diane Keaton",
+      "era": "1960s–70s",
+      "gender": "f",
+      "photo": "Diane Keaton press photo (1977).jpg",
+      "fact": "Won Best Actress for playing the title role in Annie Hall (1977)."
+    },
+    {
+      "name": "Sophia Loren",
+      "era": "1960s–70s",
+      "gender": "f",
+      "photo": "Sophia Loren L.A..jpg",
+      "fact": "Won Best Actress for the Italian film Two Women (1961)."
+    },
+    {
+      "name": "Goldie Hawn",
+      "era": "1960s–70s",
+      "gender": "f",
+      "photo": "Goldie Hawn - 1970.jpg",
+      "fact": "Won Best Supporting Actress for Cactus Flower (1969)."
+    },
+    {
+      "name": "Shirley MacLaine",
+      "era": "1960s–70s",
+      "gender": "f",
+      "photo": "Shirley_MacLaine_-_1960_(cropped).jpg",
+      "fact": "Won Best Actress for Terms of Endearment (1983), after earlier nominations including The Apartment (1960)."
+    },
+    {
+      "name": "Harrison Ford",
+      "era": "1980s–90s",
+      "gender": "m",
+      "photo": "Harrison Ford - Televerse 2025-03.jpg",
+      "fact": "His only Oscar nomination was for Best Actor in Witness (1985)."
+    },
+    {
+      "name": "Tom Hanks",
+      "era": "1980s–90s",
+      "gender": "m",
+      "photo": "Tom Hanks 2016.jpg",
+      "fact": "Won Best Actor in back-to-back years, for Philadelphia (1993) and Forrest Gump (1994)."
+    },
+    {
+      "name": "Tom Cruise",
+      "era": "1980s–90s",
+      "gender": "m",
+      "photo": "Tom Cruise by Gage Skidmore.jpg",
+      "fact": "Nominated for Born on the Fourth of July, Jerry Maguire and Magnolia, but has never won an acting Oscar."
+    },
+    {
+      "name": "Denzel Washington",
+      "era": "1980s–90s",
+      "gender": "m",
+      "photo": "Denzel Washington at the 2025 Cannes Film Festival.jpg",
+      "fact": "Won Best Supporting Actor for Glory (1989) and Best Actor for Training Day (2001)."
+    },
+    {
+      "name": "Morgan Freeman",
+      "era": "1980s–90s",
+      "gender": "m",
+      "photo": "Morgan Freeman 1998.jpg",
+      "fact": "Won Best Supporting Actor for Million Dollar Baby (2004), after nominations including The Shawshank Redemption (1994)."
+    },
+    {
+      "name": "Robin Williams",
+      "era": "1980s–90s",
+      "gender": "m",
+      "photo": "Robin Williams 2008.jpg",
+      "fact": "Won Best Supporting Actor for Good Will Hunting (1997), after Best Actor nominations for Good Morning, Vietnam, Dead Poets Society and The Fisher King."
+    },
+    {
+      "name": "Eddie Murphy",
+      "era": "1980s–90s",
+      "gender": "m",
+      "photo": "Eddie Murphy by David Shankbone.jpg",
+      "fact": "Nominated for Best Supporting Actor for Dreamgirls (2006)."
+    },
+    {
+      "name": "Matt Damon",
+      "era": "1980s–90s",
+      "gender": "m",
+      "photo": "Matt_Damon-60034.jpg",
+      "fact": "Won an Oscar for writing Good Will Hunting (1997) with Ben Affleck, and was nominated for Best Actor for playing Will Hunting."
+    },
+    {
+      "name": "Meryl Streep",
+      "era": "1980s–90s",
+      "gender": "f",
+      "photo": "Meryl Streep interview at Festival de Cannes 2024 (cropped).jpg",
+      "fact": "Holds the record for acting nominations, with 21, and has won three Oscars, including Best Actress for Sophie's Choice (1982) and The Iron Lady (2011)."
+    },
+    {
+      "name": "Julia Roberts",
+      "era": "1980s–90s",
+      "gender": "f",
+      "photo": "Julia Roberts 2025.jpg",
+      "fact": "Nominated for Pretty Woman (1990) and won Best Actress for Erin Brockovich (2000)."
+    },
+    {
+      "name": "Sigourney Weaver",
+      "era": "1980s–90s",
+      "gender": "f",
+      "photo": "Sigourney Weaver by Gage Skidmore.jpg",
+      "fact": "Nominated as Ellen Ripley in Aliens (1986), then twice in one year for Gorillas in the Mist and Working Girl (both 1988)."
+    },
+    {
+      "name": "Michelle Pfeiffer",
+      "era": "1980s–90s",
+      "gender": "f",
+      "photo": "Michelle Pfeiffer 2007.jpg",
+      "fact": "Nominated three times, for Dangerous Liaisons (1988), The Fabulous Baker Boys (1989) and Love Field (1992)."
+    },
+    {
+      "name": "Whoopi Goldberg",
+      "era": "1980s–90s",
+      "gender": "f",
+      "photo": "Whoopi_Goldberg_Cannes_1992.jpg",
+      "fact": "Won Best Supporting Actress for Ghost (1990). In 2002 she became the first African American to win an Emmy, Grammy, Oscar and Tony."
+    },
+    {
+      "name": "Jodie Foster",
+      "era": "1980s–90s",
+      "gender": "f",
+      "photo": "Jodie Foster.4785.jpg",
+      "fact": "First nominated for Taxi Driver (1976), she won Best Actress for The Accused (1988) and The Silence of the Lambs (1991)."
+    },
+    {
+      "name": "Susan Sarandon",
+      "era": "1980s–90s",
+      "gender": "f",
+      "photo": "Susan Sarandon 3 by David Shankbone.jpg",
+      "fact": "Won Best Actress for Dead Man Walking (1995) after four earlier nominations, including Thelma & Louise (1991)."
+    },
+    {
+      "name": "Sandra Bullock",
+      "era": "1980s–90s",
+      "gender": "f",
+      "photo": "Sandra Bullock 2011 AA.jpg",
+      "fact": "Won Best Actress for The Blind Side (2009) and was nominated again for Gravity (2013)."
+    },
+    {
+      "name": "Leonardo DiCaprio",
+      "era": "2000s–today",
+      "gender": "m",
+      "photo": "Leonardo_DiCaprio_2016_2.jpg",
+      "fact": "Won Best Actor for The Revenant (2015) on his fifth acting nomination."
+    },
+    {
+      "name": "Brad Pitt",
+      "era": "2000s–today",
+      "gender": "m",
+      "photo": "BradPitt.jpg",
+      "fact": "Won Best Supporting Actor for Once Upon a Time in Hollywood (2019)."
+    },
+    {
+      "name": "Johnny Depp",
+      "era": "2000s–today",
+      "gender": "m",
+      "photo": "Johnny Depp by Gage Skidmore 2.jpg",
+      "fact": "Nominated for Best Actor three times, including as Captain Jack Sparrow in Pirates of the Caribbean: The Curse of the Black Pearl (2003)."
+    },
+    {
+      "name": "Will Smith",
+      "era": "2000s–today",
+      "gender": "m",
+      "photo": "Will_Smith.jpg",
+      "fact": "Nominated for playing Muhammad Ali in Ali (2001), and won Best Actor for King Richard (2021)."
+    },
+    {
+      "name": "Ryan Gosling",
+      "era": "2000s–today",
+      "gender": "m",
+      "photo": "RyanGosling10-19.JPG",
+      "fact": "Nominated for Best Actor for La La Land (2016) and Best Supporting Actor for playing Ken in Barbie (2023)."
+    },
+    {
+      "name": "Keanu Reeves",
+      "era": "2000s–today",
+      "gender": "m",
+      "photo": "Reunião_com_o_ator_norte-americano_Keanu_Reeves_(cropped).jpg",
+      "fact": "Born in Beirut, Lebanon, and raised in Toronto."
+    },
+    {
+      "name": "Hugh Jackman",
+      "era": "2000s–today",
+      "gender": "m",
+      "photo": "Hugh Jackman by Gage Skidmore 3.jpg",
+      "fact": "Nominated for Best Actor for playing Jean Valjean in Les Misérables (2012)."
+    },
+    {
+      "name": "Timothée Chalamet",
+      "era": "2000s–today",
+      "gender": "m",
+      "photo": "Timothée Chalamet-63815b (cropped).jpg",
+      "fact": "Has three Best Actor nominations, including for playing Bob Dylan in A Complete Unknown (2024)."
+    },
+    {
+      "name": "Nicole Kidman",
+      "era": "2000s–today",
+      "gender": "f",
+      "photo": "Nicole Kidman 2011.jpg",
+      "fact": "Won Best Actress for playing the writer Virginia Woolf in The Hours (2002)."
+    },
+    {
+      "name": "Charlize Theron",
+      "era": "2000s–today",
+      "gender": "f",
+      "photo": "CharlizeTheron-byPhilipRomano2.jpg",
+      "fact": "Won Best Actress for playing Aileen Wuornos in Monster (2003)."
+    },
+    {
+      "name": "Natalie Portman",
+      "era": "2000s–today",
+      "gender": "f",
+      "photo": "NataliePortman.jpg",
+      "fact": "Won Best Actress for Black Swan (2010), and was nominated for playing Jacqueline Kennedy in Jackie (2016)."
+    },
+    {
+      "name": "Scarlett Johansson",
+      "era": "2000s–today",
+      "gender": "f",
+      "photo": "Scarlett Johansson-8588.jpg",
+      "fact": "Was nominated twice in the same year, for Marriage Story and Jojo Rabbit (both 2019)."
+    },
+    {
+      "name": "Jennifer Lawrence",
+      "era": "2000s–today",
+      "gender": "f",
+      "photo": "Jennifer Lawrence in 2016.jpg",
+      "fact": "Won Best Actress for Silver Linings Playbook (2012), two years after her first nomination for Winter's Bone."
+    },
+    {
+      "name": "Emma Stone",
+      "era": "2000s–today",
+      "gender": "f",
+      "photo": "Emma_Stone_at_the_2024_New_York_Film_Festival_2_(cropped).jpg",
+      "fact": "Has won Best Actress twice, for La La Land (2016) and Poor Things (2023)."
+    },
+    {
+      "name": "Margot Robbie",
+      "era": "2000s–today",
+      "gender": "f",
+      "photo": "Margot Robbie by Gage Skidmore.jpg",
+      "fact": "Nominated for Best Actress for playing Tonya Harding in I, Tonya (2017)."
+    },
+    {
+      "name": "Viola Davis",
+      "era": "2000s–today",
+      "gender": "f",
+      "photo": "Viola Davis (cropped).jpg",
+      "fact": "Won Best Supporting Actress for Fences (2016), and completed the EGOT in 2023 with a Grammy for the audiobook of her memoir."
+    },
+    {
+      "name": "Halle Berry",
+      "era": "2000s–today",
+      "gender": "f",
+      "photo": "Halle Berry by Gage Skidmore.jpg",
+      "fact": "The first Black woman to win Best Actress, for Monster's Ball (2001)."
+    }
+  ]
+}
+
+</script>
+
+<div class="app">
+  <header class="top">
+    <div class="top-row">
+      <h1 class="brand"><em>Hollywood</em> Stars Quiz</h1>
+      <div class="score" id="scoreBox"></div>
+    </div>
+    <ol class="dots" id="dots" aria-hidden="true"></ol>
+  </header>
+
+  <main class="stage" id="stage">
+    <section class="setup" id="setup">
+      <div class="notice" id="notice"></div>
+    </section>
+
+    <section class="card" id="play" hidden>
+      <div class="meta" id="cat"></div>
+      <h2 class="question" id="question"></h2>
+      <div class="photo-box"><img class="photo" id="photo" alt=""><div class="photo-msg" id="photoMsg" hidden></div></div>
+      <ol class="options" id="options"></ol>
+      <div class="fact" id="fact" hidden>
+        <p class="verdict" id="verdict"></p>
+        <p id="factText"></p>
+        <p class="credit" id="creditRow"><a id="credit" href="#" target="_blank" rel="noopener">Photo: Wikimedia Commons (author and licence)</a></p>
+      </div>
+    </section>
+
+    <section class="over" id="over" hidden>
+      <div class="final">
+        <p class="big" id="finalScore"></p>
+        <p id="finalMsg"></p>
+        <p class="best" id="best"></p>
+      </div>
+      <div class="row">
+        <button class="ghost" id="shareBtn" type="button">Share score</button>
+      </div>
+      <h2 class="review-title">Your answers</h2>
+      <ol class="review" id="review"></ol>
+    </section>
+  </main>
+
+  <footer class="actions">
+    <button class="btn" id="mainBtn" type="button" disabled>Pick an era</button>
+    <p class="foot" id="foot"></p>
+  </footer>
+  <div class="sr" aria-live="polite" id="live"></div>
+</div>
+
+<script>
+// ---------- Load and check the content ----------
+const $ = id => document.getElementById(id);
+const KEYS = "ABCDEF";
+const ALL_ERAS = "all";
+const PREVIEW = new URLSearchParams(location.search).has("preview");
+let DATA, ERAS = [], ACTORS = [], PER = 12, NOPT = 5;
+const shuffle = a => { a = [...a]; for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [a[k], a[j]] = [a[j], a[k]]; } return a; };
+
+try {
+  DATA = JSON.parse($("quiz-data").textContent);
+  PER = Math.max(1, +(DATA.settings && DATA.settings.questionsPerGame) || 12);
+  NOPT = Math.min(6, Math.max(3, +(DATA.settings && DATA.settings.optionsPerQuestion) || 5));
+  ERAS = Array.isArray(DATA.eras) ? DATA.eras : [];
+  (DATA.actors || []).forEach((a, n) => {
+    if (!a.name || !a.era) console.warn(`Actor ${n + 1} skipped: missing name or era.`);
+    else if (!ERAS.includes(a.era)) console.warn(`${a.name} skipped: era "${a.era}" isn't in the eras list.`);
+    else ACTORS.push({ ...a, photo: (a.photo || "").trim(), gender: a.gender === "f" ? "f" : "m" });
+  });
+} catch (e) {
+  console.error(e);
+}
+
+// Photos come straight from Wikimedia Commons. "width" asks Commons for a
+// resized copy, so phones don't download the full-size original.
+const photoSrc = (file, width) => "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(file) + "?width=" + width;
+const photoPage = file => "https://commons.wikimedia.org/wiki/File:" + encodeURIComponent(file.replace(/ /g, "_"));
+const askable = era => ACTORS.filter(a => (PREVIEW || a.photo) && (era === ALL_ERAS || a.era === era));
+const eraName = era => era === ALL_ERAS ? "All eras" : era;
+
+// Wrong answers: same gender, same era first, then same gender from other eras.
+function makeQuestion(a) {
+  const others = ACTORS.filter(o => o.name !== a.name);
+  const sameEra = shuffle(others.filter(o => o.gender === a.gender && o.era === a.era));
+  const sameGender = shuffle(others.filter(o => o.gender === a.gender && o.era !== a.era));
+  const rest = shuffle(others.filter(o => o.gender !== a.gender));
+  const wrong = [...new Set([...sameEra, ...sameGender, ...rest].map(o => o.name))].slice(0, NOPT - 1);
+  return { era: a.era, photo: a.photo, answer: a.name, options: [a.name, ...wrong], fact: a.fact };
+}
+
+// ---------- Game ----------
+let chosenEra = ALL_ERAS, round = [], i = 0, score = 0, answers = [], picked = false, mode = "setup";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function buzz(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const total = () => round.length;
+function showOnly(id) { ["setup", "play", "over"].forEach(s => { $(s).hidden = s !== id; }); mode = id; }
+
+function header() {
+  if (mode === "setup") { $("scoreBox").innerHTML = PREVIEW ? "Preview mode" : ""; $("dots").innerHTML = ""; return; }
+  const done = mode === "over";
+  $("scoreBox").innerHTML = done ? `Done · Score <b>${score}</b>`
+    : `Q <b>${Math.min(i + 1, total())}</b>/${total()} · Score <b>${score}</b>`;
+  $("dots").style.gridTemplateColumns = `repeat(${total()},1fr)`;
+  $("dots").innerHTML = round.map((_, k) => {
+    const c = k < answers.length ? (answers[k].ok ? "ok" : "no") : (k === i && !done ? "now" : "");
+    return `<li class="${c}"></li>`;
+  }).join("");
+}
+
+// ---------- No photos yet ----------
+function setup() {
+  showOnly("setup");
+  $("notice").innerHTML = `<p><b>No photos added yet.</b> Each actor in the quiz-data block has an empty <code>"photo": ""</code>. Add the Wikimedia Commons file name for each one (without <code>File:</code>), and that actor joins the quiz.</p>
+    <p>To try the quiz now with placeholders, <a href="?preview">open preview mode</a>.</p>`;
+  const b = $("mainBtn"); b.disabled = true; b.textContent = "No photos yet";
+  header();
+}
+
+// ---------- Questions ----------
+// Show the photo, with a message while it loads, if it fails, or if none is set (preview).
+function setPhoto(x) {
+  const img = $("photo"), msg = $("photoMsg"), at = i;
+  msg.hidden = false;
+  if (!x.photo) {
+    img.removeAttribute("src"); img.style.visibility = "hidden";
+    msg.textContent = `Preview: no photo added for this actor yet.`;
+    return;
+  }
+  img.style.visibility = "";
+  msg.textContent = "Fetching the photo…";
+  img.onload = () => { if (at === i) msg.hidden = true; };
+  img.onerror = () => { if (at === i) msg.textContent = "This photo wouldn't load. Pick any answer to move on."; };
+  img.src = photoSrc(x.photo, 800);
+}
+
+function show() {
+  const x = round[i];
+  picked = false;
+  x._order = shuffle(x.options);
+  $("cat").textContent = x.era;
+  setPhoto(x);
+  $("question").textContent = "Who is this?";
+  $("options").innerHTML = x._order.map((o, k) =>
+    `<li><button class="opt" type="button" id="opt-${k}" data-v="${esc(o)}"><span class="key">${KEYS[k]}</span><span class="txt">${esc(o)}</span><span class="res" aria-hidden="true"></span></button></li>`
+  ).join("");
+  $("fact").hidden = true;
+  const b = $("mainBtn"); b.disabled = true; b.textContent = "Pick an answer";
+  $("stage").scrollTop = 0;
+  header();
+}
+
+function choose(value) {
+  if (picked) return;
+  picked = true;
+  const x = round[i], ok = value === x.answer;
+  if (ok) score++;
+  answers.push({ x, value, ok });
+  buzz(ok ? 20 : [30, 40, 30]);
+
+  document.querySelectorAll(".opt").forEach(btn => {
+    const v = btn.dataset.v; btn.disabled = true;
+    if (v === x.answer) { btn.classList.add("correct"); btn.querySelector(".res").textContent = "✓"; }
+    else if (v === value) { btn.classList.add("wrong"); btn.querySelector(".res").textContent = "✗"; }
+    else btn.classList.add("faded");
+  });
+
+  const vd = $("verdict");
+  vd.textContent = ok ? "Correct!" : `Not quite. It's ${x.answer}.`;
+  vd.className = "verdict " + (ok ? "ok" : "no");
+  $("factText").textContent = x.fact || "";
+  $("factText").hidden = !x.fact;
+  $("creditRow").hidden = !x.photo;
+  if (x.photo) $("credit").href = photoPage(x.photo);
+  $("fact").hidden = false;
+  $("live").textContent = vd.textContent + " " + (x.fact || "");
+
+  const b = $("mainBtn");
+  b.disabled = false;
+  b.textContent = i === total() - 1 ? "See your results →" : "Next question →";
+  b.focus({ preventScroll: true });
+  header();
+  requestAnimationFrame(() => $("fact").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" }));
+}
+
+function finish() {
+  showOnly("over");
+  const n = total(), pct = score / n;
+  $("finalScore").textContent = `${score}/${n}`;
+  $("finalMsg").textContent = pct >= .9 ? "Outstanding. A true film buff." : pct >= .7 ? "Great result. You know your stars." : pct >= .5 ? "Solid effort. Have another go." : "A tough set. Every round is different, so try again.";
+  let best = score;
+  try { const key = "stars-best-" + (DATA.version || "1") + "-" + chosenEra; best = Math.max(score, +(localStorage.getItem(key) || 0)); localStorage.setItem(key, best); } catch (e) {}
+  $("best").textContent = `Best score on this device: ${best}/${n}`;
+  $("review").innerHTML = answers.map(a =>
+    `<li><span class="mark ${a.ok ? "ok" : "no"}" aria-label="${a.ok ? "correct" : "wrong"}">${a.ok ? "✓" : "✗"}</span>${a.x.photo ? `<img class="thumb" src="${esc(photoSrc(a.x.photo, 120))}" alt="Photo of ${esc(a.x.answer)}">` : `<span class="thumb" aria-hidden="true"></span>`}
+     <span class="ans">${a.ok ? `<b>${esc(a.x.answer)}</b>` : `You said ${esc(a.value)} · answer: <b>${esc(a.x.answer)}</b>`}</span></li>`
+  ).join("");
+  $("shareBtn").textContent = "Share score";
+  const b = $("mainBtn"); b.disabled = false; b.textContent = "Play again ↻"; b.focus({ preventScroll: true });
+  $("stage").scrollTop = 0;
+  header();
+}
+
+function start() {
+  const pool = askable(chosenEra);
+  round = shuffle(pool).slice(0, Math.min(PER, pool.length)).map(makeQuestion);
+  i = 0; score = 0; answers = [];
+  showOnly("play");
+  round.slice(1).forEach(x => { if (x.photo) new Image().src = photoSrc(x.photo, 800); });   // preload the rest of the round
+  show();
+}
+
+// Share the score with the phone's share sheet, or copy it if that isn't available.
+async function share() {
+  const url = location.href.split(/[?#]/)[0];
+  const text = `I scored ${score}/${total()} on the Hollywood Stars Quiz. Can you beat me?`;
+  try { if (navigator.share) { await navigator.share({ title: DATA.title || document.title, text, url }); return; } }
+  catch (e) { if (e && e.name === "AbortError") return; }
+  try { await navigator.clipboard.writeText(text + " " + url); $("shareBtn").textContent = "Copied ✓"; }
+  catch (e) { $("shareBtn").textContent = "Couldn't share"; }
+}
+
+$("shareBtn").addEventListener("click", share);
+$("options").addEventListener("click", e => { const b = e.target.closest(".opt"); if (b) choose(b.dataset.v); });
+$("mainBtn").addEventListener("click", () => {
+  if (mode === "over") start();
+  else if (picked) { if (i < total() - 1) { i++; show(); } else finish(); }
+});
+document.addEventListener("keydown", e => {
+  if (e.target.tagName === "A") return;
+  const k = e.key.toUpperCase(), idx = KEYS.indexOf(k);
+  if (mode === "play" && !picked && idx > -1 && idx < (round[i]?._order.length || 0) && k.length === 1) { e.preventDefault(); choose(round[i]._order[idx]); }
+  else if (e.key === "Enter" && !$("mainBtn").disabled && document.activeElement !== $("mainBtn") && !(document.activeElement && document.activeElement.closest(".ghost"))) { e.preventDefault(); $("mainBtn").click(); }
+});
+
+if (ACTORS.length >= NOPT && ERAS.length) {
+  const withPhotos = ACTORS.filter(a => a.photo).length;
+  $("foot").textContent = `${ACTORS.length} stars · ${withPhotos} with photos · photos: Wikimedia Commons · v${(DATA.version || "1").split(" ")[0]}`;
+  if (askable(ALL_ERAS).length) start(); else setup();
+} else {
+  showOnly("play");
+  $("play").innerHTML = `<div class="error">The quiz content couldn't be loaded. Check the quiz-data block for a JSON typo, such as a missing comma or quote.</div>`;
+  $("mainBtn").textContent = "No questions loaded";
+}
+</script>
+</body>
+</html>
