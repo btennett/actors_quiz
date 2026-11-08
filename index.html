@@ -867,11 +867,10 @@ function start() {
 
 // Share the score with the phone's share sheet, or copy it if that isn't available.
 async function share() {
-  const url = location.href.split(/[?#]/)[0];
-  const text = `I scored ${score}/${total()} on the Hollywood Stars Quiz. Can you beat me?`;
-  try { if (navigator.share) { await navigator.share({ title: DATA.title || document.title, text, url }); return; } }
+  const text = `I scored ${score}/${total()} on the Hollywood Stars Quiz.`;
+  try { if (navigator.share) { await navigator.share({ text }); return; } }
   catch (e) { if (e && e.name === "AbortError") return; }
-  try { await navigator.clipboard.writeText(text + " " + url); $("shareBtn").textContent = "Copied ✓"; }
+  try { await navigator.clipboard.writeText(text); $("shareBtn").textContent = "Copied ✓"; }
   catch (e) { $("shareBtn").textContent = "Couldn't share"; }
 }
 
